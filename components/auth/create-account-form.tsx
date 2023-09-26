@@ -64,14 +64,17 @@ export function CreateAccountForm() {
       } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
-        },
       });
+
+      // this is for email verification
+      // options: {
+      //     emailRedirectTo: `${location.origin}/auth/callback`,
+      //   },
 
       if (user) {
         form.reset();
-        router.push("/");
+        // router.push("/");
+        router.refresh();
       }
     } catch (error) {
       console.log("CreateAccountForm", error);
