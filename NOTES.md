@@ -18,10 +18,14 @@ npm install @supabase/supabase-js @supabase/auth-helpers-nextjs
 npx shadcn-ui@latest init
 ```
 
+```bash
+npm i react-dropzone
+```
+
 ### 1.1.3. Create a Supabase client
 
 ```js
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

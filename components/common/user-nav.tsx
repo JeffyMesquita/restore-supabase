@@ -1,13 +1,13 @@
-"user client";
+'use client';
 import {
   User,
   createClientComponentClient,
-} from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+} from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,23 +17,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+} from '@/components/ui/dropdown-menu';
 
 export function UserNav() {
   const [user, setUser] = useState<User | null>(null);
   const supabase = createClientComponentClient();
   const router = useRouter();
 
-  const getUser = async () => {
-    const { error } = await supabase.auth.getUser();
+  const getUser = useCallback(async () => {
+    const {
+      error,
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (error) {
-      console.log("UserNav", error);
+      console.log('UserNav', error);
     } else {
       setUser(user);
     }
-  };
+  }, [supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -42,27 +44,28 @@ export function UserNav() {
 
   useEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
 
   return (
     <>
-      {!user && <Link href={"/"}>Login</Link>}
       {user && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/avatars/01.png" alt="@shadcn" />
-                <AvatarFallback>SC</AvatarFallback>
+                <AvatarImage src="/avatars/jeffy.JPG" alt="@reStore" />
+                <AvatarFallback>RS</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">shadcn</p>
+                <p className="text-sm font-medium leading-none">
+                  {user.email?.split('@')[0]}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  m@example.com
+                  {user.email}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -72,18 +75,12 @@ export function UserNav() {
                 Profile
                 <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                Billing
-                <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                Settings
-                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem>New Team</DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-red-500 hover:bg-red-500 hover:text-white transition-colors duration-300 ease-in-out"
+            >
               Log out
               <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
             </DropdownMenuItem>

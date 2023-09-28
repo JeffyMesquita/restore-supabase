@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button } from "../ui/button";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -16,28 +16,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
+} from '../ui/form';
+import { Input } from '../ui/input';
 
 type FormValues = z.infer<typeof formSchema>;
 
 const formSchema = z.object({
   email: z
     .string({
-      required_error: "Email is required",
+      required_error: 'Email is required',
     })
     .email({
-      message: "Must be a valid email address",
+      message: 'Must be a valid email address',
     }),
   password: z
     .string({
-      required_error: "Password is required",
+      required_error: 'Password is required',
     })
     .min(7, {
-      message: "Password must be at least 7 characters",
+      message: 'Password must be at least 7 characters',
     })
     .max(12, {
-      message: "Password must be at most 12 characters",
+      message: 'Password must be at most 12 characters',
     }),
 });
 
@@ -48,8 +48,8 @@ export function LoginAccountForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -67,28 +67,28 @@ export function LoginAccountForm() {
       form.reset();
       router.refresh();
     } catch (error) {
-      console.log("LoginAccountForm:onSubmit", error);
+      console.log('LoginAccountForm:onSubmit', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center space-y-2">
-      <span className="text-lg">It's good to see you again.</span>
+    <div className='flex flex-col justify-center items-center space-y-2'>
+      <span className='text-lg'>It's good to see you again.</span>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col space-y-2"
+          className='flex flex-col space-y-2'
         >
           <FormField
             control={form.control}
-            name="email"
+            name='email'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>E-mail</FormLabel>
                 <FormControl>
-                  <Input placeholder="E-mail" {...field} />
+                  <Input placeholder='E-mail' {...field} />
                 </FormControl>
                 <FormDescription>This is your E-mail</FormDescription>
                 <FormMessage />
@@ -98,12 +98,12 @@ export function LoginAccountForm() {
 
           <FormField
             control={form.control}
-            name="password"
+            name='password'
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input placeholder="********" {...field} />
+                  <Input placeholder='********' {...field} />
                 </FormControl>
                 <FormDescription>This is your Password</FormDescription>
                 <FormMessage />
@@ -111,7 +111,7 @@ export function LoginAccountForm() {
             )}
           />
 
-          <Button type="submit">Login</Button>
+          <Button type='submit'>Login</Button>
         </form>
       </Form>
     </div>

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Button } from "../ui/button";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -16,28 +16,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
+} from '../ui/form';
+import { Input } from '../ui/input';
 
 type FormValues = z.infer<typeof formSchema>;
 
 const formSchema = z.object({
   email: z
     .string({
-      required_error: "Email is required",
+      required_error: 'Email is required',
     })
     .email({
-      message: "Must be a valid email address",
+      message: 'Must be a valid email address',
     }),
   password: z
     .string({
-      required_error: "Password is required",
+      required_error: 'Password is required',
     })
     .min(7, {
-      message: "Password must be at least 7 characters",
+      message: 'Password must be at least 7 characters',
     })
     .max(12, {
-      message: "Password must be at most 12 characters",
+      message: 'Password must be at most 12 characters',
     }),
 });
 
@@ -47,8 +47,8 @@ export function CreateAccountForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -77,7 +77,7 @@ export function CreateAccountForm() {
         router.refresh();
       }
     } catch (error) {
-      console.log("CreateAccountForm", error);
+      console.log('CreateAccountForm', error);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +122,7 @@ export function CreateAccountForm() {
           />
 
           <Button type="submit">
-            {isLoading ? "Loading..." : "Create Account"}
+            {isLoading ? 'Loading...' : 'Create Account'}
           </Button>
         </form>
       </Form>
