@@ -10,7 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useCallback, useState } from 'react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useDropzone } from 'react-dropzone';
 
@@ -28,11 +29,42 @@ export function ImageUploadPlaceHolder() {
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     try {
+      // capture file
       const file = acceptedFiles[0];
+
+      // set Preview
+      setFile({
+        file,
+        preview: URL.createObjectURL(file),
+      });
+
+      const supabase = createClientComponentClient();
+      const { data, error } = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+        .upload(
+          `${process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER_PROCESSING}/${acceptedFiles[0].name}`,
+          acceptedFiles[0]
+        );
+
+      if (!error) {
+        setFileToProcess(data);
+      }
     } catch (error) {
-      console.log('ImageUploadPlaceHolder', error);
+      console.log('onDrop', error);
     }
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (file) {
+        URL.revokeObjectURL(file.preview);
+      }
+
+      if (restoredFile) {
+        URL.revokeObjectURL(restoredFile.preview);
+      }
+    };
+  }, [file, restoredFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -86,12 +118,46 @@ export function ImageUploadPlaceHolder() {
                   <div {...getRootProps()}>
                     <input {...getInputProps()} />
                     {isDragActive ? (
-                      <p>Drop your Photo here...</p>
+                      <p className="flex items-center justify-center bg-blue-100 opacity-70 border border-dashed border-blue-300 p-6 h-36 rounded-md">
+                        Drop your Photo here...
+                      </p>
                     ) : (
-                      <p>Drag or Click to choose image...</p>
+                      <p className="flex items-center justify-center bg-blue-100 opacity-70 border border-dashed border-blue-300 p-6 h-36 rounded-md">
+                        Drag or Click to choose image...
+                      </p>
                     )}
                   </div>
                 )}
+
+                <div className="flex flex-col items-center justify-evenly sm:flex-row gap-2">
+                  {file && (
+                    <div className="flex flex-row flex-wrap drop-shadow-md">
+                      <div className="flex w-48 h-48 relative">
+                        <img
+                          src={file.preview}
+                          alt="Image preview"
+                          className="w-48 h-48 object-contain rounded-md"
+                          onLoad={() => URL.revokeObjectURL(file.preview)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {restoredFile && (
+                    <div className="flex flex-row flex-wrap drop-shadow-md">
+                      <div className="flex w-60 h-60 relative">
+                        <img
+                          src={restoredFile.preview}
+                          alt="Image preview"
+                          className="w-60 h-60 object-contain rounded-md"
+                          onLoad={() =>
+                            URL.revokeObjectURL(restoredFile.preview)
+                          }
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <DialogFooter>
