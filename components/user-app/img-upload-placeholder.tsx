@@ -21,6 +21,7 @@ interface FilePreview {
 }
 
 export function ImageUploadPlaceHolder() {
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   const [file, setFile] = useState<FilePreview | null>(null);
   const [fileToProcess, setFileToProcess] = useState<{
     path: string;
@@ -48,6 +49,7 @@ export function ImageUploadPlaceHolder() {
 
       if (!error) {
         setFileToProcess(data);
+        console.log('FileToProcess', data);
       }
     } catch (error) {
       console.log('onDrop', error);
@@ -55,6 +57,7 @@ export function ImageUploadPlaceHolder() {
   }, []);
 
   useEffect(() => {
+    setIsMounted(true);
     return () => {
       if (file) {
         URL.revokeObjectURL(file.preview);
@@ -76,6 +79,43 @@ export function ImageUploadPlaceHolder() {
   });
 
   const handleDialogOpenChange = useCallback(async (e: boolean) => {}, []);
+
+  const handleEnhance = useCallback(async () => {
+    try {
+      const supabase = createClientComponentClient();
+      const {
+        data: { publicUrl },
+      } = await supabase.storage
+        .from(process.env.NEXT_PUBLIC_SUPABASE_APP_BUCKET_IMAGE_FOLDER)
+        .getPublicUrl(`${fileToProcess?.path}`);
+
+      const res = await fetch('api/ai/replicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageUrl: publicUrl,
+        }),
+      });
+
+      const restoredImageUrl = await res.json();
+
+      const readImageRes = await fetch(restoredImageUrl.data);
+
+      const imageBlob = await readImageRes.blob();
+
+      setRestoredFile({
+        file: imageBlob,
+        preview: URL.createObjectURL(imageBlob),
+      });
+      console.log('publicUrl', publicUrl);
+    } catch (error) {
+      console.log('handleEnhance', error);
+    }
+  }, [fileToProcess]);
+
+  if (!isMounted) return null;
 
   return (
     <div className="flex h-[200px] w-full shrink-0 items-center justify-center rounded-md border border-dashed">
@@ -161,7 +201,7 @@ export function ImageUploadPlaceHolder() {
               </div>
             </div>
             <DialogFooter>
-              <Button>Enhance</Button>
+              <Button onClick={handleEnhance}>Enhance</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
